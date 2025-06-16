@@ -1,6 +1,6 @@
 # AI-Driven-Urine-Analysis-for-Non-Invasive-Kidney-Stone-Detection
 
-ABSTRACT
+ABSTRACT - 
 The urological problem of kidney stones becomes a serious health concern when left untreated that may lead to unbearable pain and important medical complications. Patients often face two issues when using traditional diagnosis methods such as CT scans and ultrasounds: these tests cost a large amount of money and expose people to radiation while also being unavailable in areas that lack resources. The research evaluates a machine learning solution which examines urine test results to identify kidney stones because it aims to develop a cost-effective diagnostic method that operates through non-invasive methods with open accessibility.
 
 Among the machine learning classifiers used in this study, Logistic Regression, Support Vector Machine (SVM), Random Forest and XGBoost were included because they are known to do well in biomedical classification. If your data is straightforward and linear, Logistic Regression is a simple method, but SVM deals well with more complex and unstructured data. Random Forest and XGBoost are types of ensemble models and they can manage both feature interactions and noise. While Random Forest helps more with smooth results and easy interpretation, it is XGBoost that stands out in making accurate predictions by applying gradient boosting.
