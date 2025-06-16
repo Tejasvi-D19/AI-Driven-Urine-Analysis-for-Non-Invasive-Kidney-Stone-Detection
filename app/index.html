@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kidney Stone Prediction</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .prediction-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .result-box {
+            padding: 1rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #2c3e50;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container prediction-container">
+        <div class="header">
+            <h1>Kidney Stone Prediction</h1>
+            <p class="text-muted">Enter your test values to predict kidney stone presence</p>
+        </div>
+
+        <form id="predictionForm">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <label class="form-label" for="gravity">Gravity</label>
+                        <input type="number" class="form-control" id="gravity" step="0.001" required>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <label class="form-label" for="ph">pH</label>
+                        <input type="number" class="form-control" id="ph" step="0.1" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <label class="form-label" for="osmo">Osmolarity</label>
+                        <input type="number" class="form-control" id="osmo" step="0.1" required>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <label class="form-label" for="cond">Conductivity</label>
+                        <input type="number" class="form-control" id="cond" step="0.1" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <label class="form-label" for="urea">Urea</label>
+                        <input type="number" class="form-control" id="urea" step="0.1" required>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <label class="form-label" for="calc">Calcium</label>
+                        <input type="number" class="form-control" id="calc" step="0.1" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary btn-lg">Predict</button>
+            </div>
+        </form>
+
+        <div class="loading">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+
+        <div id="result" class="result-box"></div>
+    </div>
+
+    <script>
+        document.getElementById('predictionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const loading = document.querySelector('.loading');
+            const resultBox = document.getElementById('result');
+
+            // Show loading
+            loading.style.display = 'block';
+            resultBox.style.display = 'none';
+
+            const formData = {
+                gravity: parseFloat(document.getElementById('gravity').value),
+                ph: parseFloat(document.getElementById('ph').value),
+                osmo: parseFloat(document.getElementById('osmo').value),
+                cond: parseFloat(document.getElementById('cond').value),
+                urea: parseFloat(document.getElementById('urea').value),
+                calc: parseFloat(document.getElementById('calc').value)
+            };
+
+            try {
+                const response = await fetch('http://localhost:8000/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                // Hide loading
+                loading.style.display = 'none';
+                resultBox.style.display = 'block';
+
+                if (response.ok) {
+                    const probability = (data.probability * 100).toFixed(2);
+                    resultBox.className = 'result-box alert ' +
+                        (data.prediction === 1 ? 'alert-danger' : 'alert-success');
+                    resultBox.innerHTML = `
+                        <h4 class="alert-heading">${data.message}</h4>
+                        <p>Probability: ${probability}%</p>
+                    `;
+                } else {
+                    resultBox.className = 'result-box alert alert-warning';
+                    resultBox.textContent = data.detail || 'An error occurred during prediction.';
+                }
+            } catch (error) {
+                loading.style.display = 'none';
+                resultBox.style.display = 'block';
+                resultBox.className = 'result-box alert alert-danger';
+                resultBox.textContent = 'Error connecting to the server. Please try again.';
+            }
+        });
+    </script>
+</body>
+</html>
